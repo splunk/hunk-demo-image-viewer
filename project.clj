@@ -7,7 +7,8 @@
                  [org.apache.commons/commons-compress "1.5"]
                  [midje "1.5.1"]
                  [http-kit "2.1.10"]
-                 [ring-cors "0.1.0"]]
+                 [ring-cors "0.1.0"]
+                 [commons-codec "1.8"]]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler images.handler/app}
   :profiles
