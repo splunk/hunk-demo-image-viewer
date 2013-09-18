@@ -3,7 +3,8 @@
   (:require [compojure.handler :as handler]
             [compojure.route :as route]
             [images.hdfsreader :as reader]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [ring.middleware.cors :as cors]))
 
 (defn content-subtype [filename]
   (-> filename (s/split #"\.") last s/lower-case))
@@ -18,4 +19,6 @@
   (route/not-found "Not Found"))
 
 (def app
-  (handler/site app-routes))
+  (-> (handler/site app-routes)
+      (cors/wrap-cors
+        :access-control-allow-origin #".+")))

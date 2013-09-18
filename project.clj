@@ -6,7 +6,8 @@
                  [org.apache.hadoop/hadoop-core "1.1.2"]
                  [org.apache.commons/commons-compress "1.5"]
                  [midje "1.5.1"]
-                 [http-kit "2.1.10"]]
+                 [http-kit "2.1.10"]
+                 [ring-cors "0.1.0"]]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler images.handler/app}
   :profiles
