@@ -4,7 +4,9 @@
             [compojure.route :as route]
             [images.hdfsreader :as reader]
             [clojure.string :as s]
-            [ring.middleware.cors :as cors]))
+            [ring.middleware.cors :as cors])
+  (:import [org.apache.commons.codec.binary Base64]
+           [org.apache.commons.io IOUtils]))
 
 (defn content-subtype [filename]
   (-> filename (s/split #"\.") last s/lower-case))
@@ -16,7 +18,10 @@
         :headers {"Content-Type" (str "image/" (content-subtype filename))
                   "Access-Control-Allow-Headers" "x-splunk-form-key, accept, origin"
                   "Access-Control-Allow-Methods" "GET"}
-        :body (reader/get-image path filename)})
+        :body (-> (reader/get-image path filename)
+                  IOUtils/toByteArray
+                  Base64/encodeBase64
+                  String.)})
   (route/resources "/")
   (route/not-found "Not Found"))
 
