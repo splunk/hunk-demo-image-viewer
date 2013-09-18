@@ -5,6 +5,7 @@
             [images.hdfsreader :as reader]))
 
 (defroutes app-routes
+  (GET "/" [] {:status 200 :body "Dat image search ya'll"})
   (GET "/image" [path filename] (reader/get-image path filename))
   (route/resources "/")
   (route/not-found "Not Found"))
