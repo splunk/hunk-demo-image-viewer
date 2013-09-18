@@ -17,6 +17,7 @@ public class HdfsReader {
 
 	public static InputStream getHdfsFileStream(String fsUri, String path,
 			String filename) throws IOException {
+                System.out.println("looking for filename: " + filename);
 		return getFileInTar(filename, getInputStreamToPath(fsUri, path));
 	}
 
@@ -47,6 +48,8 @@ public class HdfsReader {
 
 	private static boolean isFileWereLookingFor(TarArchiveEntry entry,
 			String filename) {
-		return entry.getName().equals(filename);
+                String entryName = new java.io.File(entry.getName()).getName();
+                System.out.println("Entry: " + entryName);
+		return entryName.equals(filename);
 	}
 }
