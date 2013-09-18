@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Image Search alpha HTML | Splunk</title>
+        <link rel="shortcut icon" href="{{SPLUNKWEB_URL_PREFIX}}/static/img/favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/pages/dashboard-simple-bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/search/dashboard.css" />
+        <!--[if IE 7]><link rel="stylesheet" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/sprites-ie7.css" /><![endif]-->
+    </head>
+    <body class="simplexml preload">
+        <div class="header">
+            <div id="placeholder-splunk-bar">
+                <a href="{{SPLUNKWEB_URL_PREFIX}}/app/launcher/home" class="brand" title="splunk &gt; listen to your data">splunk<strong>&gt;</strong></a>
+            </div>
+            <div id="placeholder-app-bar"></div>
+        </div>
+        <div class="dashboard-body container-fluid main-section-body" data-role="main">
+            <div class="dashboard-header clearfix">
+                <h2>Image Search alpha HTML</h2>
+                <p class="description">Dat image search ya&#39;ll</p>
+            </div>
+            <div class="dashboard-row dashboard-row1">
+                <div class="dashboard-cell" style="width: 100%;">
+                    <div class="dashboard-panel clearfix">
+                        <div class="panel-element-row" id="element-parent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer"></div>
+        <script src="{{SPLUNKWEB_URL_PREFIX}}/config?autoload=1"></script>
+        <script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/i18n.js"></script>
+        <script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/build/simplexml.min/config.js"></script>
+        <script type="text/javascript">
+            require.config({
+                baseUrl: "{{SPLUNKWEB_URL_PREFIX}}/static/js",
+                waitSeconds: 0 // Disable require.js load timeout
+            });
+            require([
+                "splunkjs/mvc",
+                "splunkjs/mvc/utils",
+                "splunkjs/mvc/tokenutils",
+                "underscore",
+                "jquery",
+                "splunkjs/mvc/simplexml",
+            "splunk.config"],
+            function(mvc, utils, TokenUtils, _, $) {
+
+                // AUTO-COMPILED JAVASCRIPT
+
+                //
+                // Import required dependencies
+                //
+
+                var DashboardController = require("splunkjs/mvc/simplexml/controller");
+                var HeaderView = require("splunkjs/mvc/headerview");
+                var FooterView = require("splunkjs/mvc/footerview");
+                var Dashboard = require("splunkjs/mvc/simplexml/dashboard");
+                var ChartElement = require("splunkjs/mvc/simplexml/element/chart");
+                var EventElement = require("splunkjs/mvc/simplexml/element/event");
+                var HtmlElement = require("splunkjs/mvc/simplexml/element/html");
+                var ListElement = require("splunkjs/mvc/simplexml/element/list");
+                var MapElement = require("splunkjs/mvc/simplexml/element/map");
+                var SingleElement = require("splunkjs/mvc/simplexml/element/single");
+                var TableElement = require("splunkjs/mvc/simplexml/element/table");
+                var SearchManager = require("splunkjs/mvc/searchmanager");
+                var SavedSearchManager = require("splunkjs/mvc/savedsearchmanager");
+                var PostProcessSearchContext = require("splunkjs/mvc/postprocess");
+                var UrlTokenModel = require("splunkjs/mvc/simplexml/urltokenmodel");
+                var SimpleSplunkView = require("splunkjs/mvc/simplesplunkview");
+
+                //
+                // Create form token namespaces
+                //
+
+                var defaultTokenModel = mvc.Components.getInstance('default', {create: true});
+                var submittedTokenModel = new UrlTokenModel();
+                mvc.Components.registerInstance('submitted', submittedTokenModel);
+
+                submittedTokenModel.on('url:navigate', function() {
+                    submittedTokenModel.disableAutosave();
+                    defaultTokenModel.set(submittedTokenModel.toJSON());
+                    submittedTokenModel.enableAutosave();
+                });
+
+                // Initialize non-input tokens
+                defaultTokenModel.set(submittedTokenModel.toJSON());
+
+                var submitTokens = _.debounce(function() {
+                    // Submit form, even if no values have changed since the last submit.
+                    submittedTokenModel.set(defaultTokenModel.toJSON());
+                });
+
+
+                //
+                // Create searches
+                //
+
+                function getKey(e, k) {
+                    return e.context.attributes.getNamedItem(k).nodeValue;
+                }
+
+                function createSearch(id) {
+                    var search = "index=images";
+                    var sumString = "score=";
+                    $(".bucket").each(function(i) {
+                        var self = $(this);
+                        if (self.attr("checked")) {
+                            search += " | rename ";
+                            var color = "color" + i;
+                            search += "colors." + getKey(self, "b") + "." + getKey(self,"s") + "." + getKey(self, "h") + " as " + color + ", ";
+                            sumString += color + "+";
+                        }
+                    });
+                    sumString += "0";
+                    search += " | eval " + sumString + " | stats sum(score) as relevance by image, source";
+                    search += " | sort -relevance"
+                    console.log("da search: " + search);
+                    return new SearchManager({
+                        "id": "search" + id,
+                        "status_buckets": 0,
+                        "earliest_time": "$earliest$",
+                        "search": search,
+                        "latest_time": "$latest$",
+                        "cancelOnUnload": true,
+                        "app": utils.getCurrentApp(),
+                        "auto_cancel": 90,
+                        "autostart":false,
+                        "preview": true
+                    }, {tokens: true, tokenNamespace: "submitted"});
+                }
+
+
+                //
+                // Create header and footer Splunk UI
+                //
+
+                new HeaderView({
+                    id: 'header',
+                    section: 'dashboards',
+                    el: $('.header'),
+                    acceleratedAppNav: true
+                }, {tokens: true}).render();
+
+                new FooterView({
+                    id: 'footer',
+                    el: $('.footer')
+                }, {tokens: true}).render();
+
+                new Dashboard({
+                    id: 'dashboard',
+                    el: $('.dashboard-body')
+                }, {tokens: true}).render();
+
+                //
+                // Create components
+                //
+
+                function createElement(id) {
+                    return new MySplunkView({
+                        "id": "element" + id,
+                        "resizable": true,
+                        "managerid": "search" + id,
+                        "el": $("#element" + id)
+                    }, {tokens: true});
+                }
+
+
+
+                DashboardController.ready();
+
+                submitTokens();
+
+
+                // END OF AUTO-COMPILED JAVASCRIPT
+
+                // HSB -> RGB conversion
+                function hsv2rgb(h,s,v) {
+                    // Adapted from http://www.easyrgb.com/math.html
+                    // hsv values = 0 - 1, rgb values = 0 - 255
+                    var r, g, b;
+                    var RGB = new Array();
+                    if(s==0){
+                        RGB['red']=RGB['green']=RGB['blue']=Math.round(v*255);
+                    }else{
+                        // h must be < 1
+                        var var_h = h * 6;
+                        if (var_h==6) var_h = 0;
+                        //Or ... var_i = floor( var_h )
+                        var var_i = Math.floor( var_h );
+                        var var_1 = v*(1-s);
+                        var var_2 = v*(1-s*(var_h-var_i));
+                        var var_3 = v*(1-s*(1-(var_h-var_i)));
+                        if(var_i==0){
+                            var_r = v;
+                            var_g = var_3;
+                            var_b = var_1;
+                        }else if(var_i==1){
+                            var_r = var_2;
+                            var_g = v;
+                            var_b = var_1;
+                        }else if(var_i==2){
+                            var_r = var_1;
+                            var_g = v;
+                            var_b = var_3
+                        }else if(var_i==3){
+                            var_r = var_1;
+                            var_g = var_2;
+                            var_b = v;
+                        }else if (var_i==4){
+                            var_r = var_3;
+                            var_g = var_1;
+                            var_b = v;
+                        }else{
+                            var_r = v;
+                            var_g = var_1;
+                            var_b = var_2
+                        }
+                        //rgb results = 0 ÷ 255
+                        RGB['red']=Math.round(var_r * 255);
+                        RGB['green']=Math.round(var_g * 255);
+                        RGB['blue']=Math.round(var_b * 255);
+                    }
+                    return  RGB;
+                };
+
+                // START OWN STUFF
+
+                var hBuckets = 10;
+                var sBuckets = 3;
+                var bBuckets = 2;
+
+                var checkBoxesDiv = jQuery("<div/>", {
+                    class: 'row span11',
+                    id: 'checkBoxes'
+                });
+
+                var loop = 0;
+                for (var i = bBuckets-1; i >= 0; i--) {
+                    loop++;
+                    for (var j = (loop == 1? 0 : sBuckets-1);
+                    (loop == 1 && j < sBuckets) || (loop == 2 && j >= 0);
+                    loop == 1 ? j++ : j--) {
+                        for (var k = 0; k < hBuckets; k++) {
+                            var hue = (1/(1.1*hBuckets)) + (k == 0? 0 : (1/hBuckets)*k);
+                            var sat = (1/(1.1*sBuckets)) + (j == 0? 0 : (1/sBuckets)*j);
+                            var bri = (1/(1.1*bBuckets)) + (i == 0? 0 : (1/bBuckets)*i);
+                            var rgb = hsv2rgb(hue, sat, bri);
+                            var checkBoxWrap = jQuery("<div/>", {
+                                class: "span1",
+                                style: "background-color: rgb(" + rgb['red'] + "," + rgb['green'] + "," + rgb['blue'] + ")"
+                            });
+                            var checkBox = jQuery("<input/>", {
+                                type: "checkbox",
+                                class: "bucket",
+                                h: k,
+                                s: j,
+                                b: i
+                            });
+
+                            checkBoxWrap.append(checkBox);
+                            checkBoxesDiv.append(checkBoxWrap);
+                        }
+                    }
+                }
+
+                var dashBody = $('.dashboard-body');
+                dashBody.append(checkBoxesDiv);
+
+                // search
+
+                var searchButton = jQuery("<button/>", {
+                    class: "btn btn-large btn-primary",
+                    type: "button",
+                    text: "Search!",
+                });
+
+                var currentSearchId = 0;
+                var search = null;
+                var element = null;
+
+                $(searchButton).click(function() {
+                    if (element != null) {
+                        element.off();
+                    }
+                    if (search != null) {
+                        search.cancel();
+                        search.finalize();
+                        search.off();
+                    }
+                    $("#element" + currentSearchId).remove();
+                    currentSearchId++;
+                    var searchId = currentSearchId;
+                    search = createSearch(searchId);
+                    attachNewElement(searchId);
+                    element = createElement(searchId);
+                    element.render();
+                    search.startSearch();
+                });
+
+                var resetButton = jQuery("<button/>", {
+                    class: "btn btn-small btn-default",
+                    type: "button",
+                    text: "Reset selection",
+                });
+
+                $(resetButton).click(function() {
+                    $('#checkBoxes').find('input[type=checkbox]:checked').removeAttr('checked');
+                });
+
+                dashBody.append(searchButton);
+                dashBody.append(resetButton);
+
+                function attachNewElement(id) {
+                    var elementDiv = jQuery("<div/>", {
+                        class: "dashboard-element chart",
+                        id: "element" + id,
+                        style: "width: 100%"
+                    });
+                    jQuery("<div/>", {
+                        class: "panel-body"
+                    }).appendTo(elementDiv);
+                    $("#element-parent").append(elementDiv);
+                }
+
+                // My own view
+                var MySplunkView = SimpleSplunkView.extend({
+                    className: "my-splunk-view",
+                    outputMode: "json",
+
+                    createView: function() {
+                        console.log("In createView:");
+                        $(".splunk-message-container").remove();
+                        $(this.$el.selector).css({
+                            width: "1200px",
+                            height: "400px"
+                        });
+                        return this;
+                    },
+
+                    formatData: function(data) {
+                        return data;
+                    },
+
+                    updateView: function(viz, data) {
+                        if (this._isJobDone)
+                            console.log("Job is done!");
+                        console.log("In updateView:");
+                        $(viz.$el.selector).empty();
+                        console.log(data);
+                        for (var i = 0; i < 3; i++) {
+                            fetchImage(i,  data, viz);
+                        }
+                    }
+                });
+
+                function fetchImage(i, data, viz) {
+                    var theDiv = jQuery("<div/>", {
+                        style: "position: relative; width: 400px; height: 400px; float: left; display: none;"
+                    });
+                    $(viz.$el.selector).append(theDiv);
+                    var matchSplit = data[i][2].split(".");
+                    var match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
+                    $.ajax({
+                        url: "http://localhost:5123/image",
+                        cache: false,
+                        type: "GET",
+                        data: {
+                            path: data[i][1],
+                            filename: data[i][0]
+                        },
+                        success: function(image) {
+                            createImageDiv(image, match, theDiv);
+                        },
+                        error: function(x) {
+                            alert("Error: " + x);
+                        }});
+                }
+
+                function createImageDiv(image, match, theDiv) {
+                    var img = jQuery("<img/>", {
+                        width: "400",
+                        height: "400",
+                        style: "float: left; width: 400px; height: 400px;",
+                        src: "data:image/jpg;base64," + image
+                    });
+                    img.appendTo(theDiv);
+                    img.load(function() {
+                        theDiv.fadeIn(1300);
+                    });
+                    var h2style = "position: absolute; top: 280px; left: 0; width: 380px;";
+                    h2style += " color: white; font: bold 24px/45px Helvetica, Sans-Serif;";
+                    h2style += " letter-spacing: -1px; background: rgb(0, 0, 0);";
+                    h2style += " background: rgba(0, 0, 0, 0.7); padding: 10px;";
+                    jQuery("<h2/>", {
+                        style: h2style,
+                        text: "Match: " + match + "%"
+                    }).appendTo(theDiv);
+                }
+            }
+            );
+        </script>
+    </body>
+</html>
