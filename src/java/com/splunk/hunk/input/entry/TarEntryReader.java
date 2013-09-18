@@ -1,4 +1,4 @@
-package images.java;
+package com.splunk.hunk.input.entry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,11 +13,11 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-public class HdfsReader {
+public class TarEntryReader implements EntryReader {
 
-	public static InputStream getHdfsFileStream(String fsUri, String path,
+	public InputStream getHdfsFileStream(String fsUri, String path,
 			String filename) throws IOException {
-                System.out.println("looking for filename: " + filename);
+		System.out.println("looking for filename: " + filename);
 		return getFileInTar(filename, getInputStreamToPath(fsUri, path));
 	}
 
@@ -48,8 +48,8 @@ public class HdfsReader {
 
 	private static boolean isFileWereLookingFor(TarArchiveEntry entry,
 			String filename) {
-                String entryName = new java.io.File(entry.getName()).getName();
-                System.out.println("Entry: " + entryName);
+		String entryName = new java.io.File(entry.getName()).getName();
+		System.out.println("Entry: " + entryName);
 		return entryName.equals(filename);
 	}
 }
