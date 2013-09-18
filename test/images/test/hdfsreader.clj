@@ -8,8 +8,6 @@
 (def filename "IMG_1548.jpg")
 (def verify-path (str "testing/" filename))
 
-
-
 (fact
   (let [image-stream (get-image image-path filename)
         expected-stream (-> (io/resource verify-path)
