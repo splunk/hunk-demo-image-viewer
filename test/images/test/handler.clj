@@ -18,5 +18,4 @@
   (content-subtype "file.k") => "k"
   (content-subtype "file.jpg") => "jpg"
   (content-subtype "file.JPG") => "jpg"
-  (content-subtype "path/with.dots/to/file.and.moar.dots.jpg") => "jpg"
-  )
+  (content-subtype "path/with.dots/to/file.and.moar.dots.jpg") => "jpg")

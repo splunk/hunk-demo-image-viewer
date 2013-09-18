@@ -4,5 +4,5 @@
 
 (def port 5123)
 
-(defn -main [args]
+(defn -main []
   (s/run-server h/app {:port port}))
