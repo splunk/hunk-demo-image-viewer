@@ -9,4 +9,5 @@
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler images.handler/app}
   :profiles
-  {:dev {:dependencies [[ring-mock "0.1.5"]]}})
+  {:dev {:dependencies [[ring-mock "0.1.5"]]}}
+  :java-source-paths ["src/java"])
