@@ -13,7 +13,9 @@
   (GET "/" [] {:status 200 :body "Dat image search ya'll"})
   (GET "/image" [path filename]
        {:status 200
-        :headers {"Content-Type" (str "image/" (content-subtype filename))}
+        :headers {"Content-Type" (str "image/" (content-subtype filename))
+                  "Access-Control-Allow-Headers" "x-splunk-form-key, accept, origin"
+                  "Access-Control-Allow-Methods" "GET"}
         :body (reader/get-image path filename)})
   (route/resources "/")
   (route/not-found "Not Found"))
