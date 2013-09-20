@@ -1,54 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>Image Search alpha HTML | Splunk</title>
-        <link rel="shortcut icon" href="{{SPLUNKWEB_URL_PREFIX}}/static/img/favicon.ico" />
-        <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/pages/dashboard-simple-bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/search/dashboard.css" />
-        <!--[if IE 7]><link rel="stylesheet" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/sprites-ie7.css" /><![endif]-->
-    </head>
-    <body class="simplexml preload">
-        <div class="header">
-            <div id="placeholder-splunk-bar">
-                <a href="{{SPLUNKWEB_URL_PREFIX}}/app/launcher/home" class="brand" title="splunk &gt; listen to your data">splunk<strong>&gt;</strong></a>
-            </div>
-            <div id="placeholder-app-bar"></div>
-        </div>
-        <div class="dashboard-body container-fluid main-section-body" data-role="main">
-            <div class="dashboard-header clearfix">
-                <h2>Image Search alpha HTML</h2>
-                <p class="description">Dat image search ya&#39;ll</p>
-            </div>
-            <div class="dashboard-row dashboard-row1">
-                <div class="dashboard-cell" style="width: 100%;">
-                    <div class="dashboard-panel clearfix">
-                        <div class="panel-element-row" id="element-parent">
-                        </div>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>ma new image search | Splunk</title>
+    <link rel="shortcut icon" href="{{SPLUNKWEB_URL_PREFIX}}/static/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/pages/dashboard-simple-bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{SPLUNKWEB_URL_PREFIX}}/static/app/search/dashboard.css" />
+    <!--[if IE 7]><link rel="stylesheet" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/sprites-ie7.css" /><![endif]-->
+</head>
+<body class="simplexml preload">
+
+<!--
+BEGIN LAYOUT
+This section contains the layout for the dashboard. Splunk uses proprietary
+styles in <div> tags, similar to Bootstrap's grid system.
+-->
+
+<div class="header">
+    <div id="placeholder-splunk-bar">
+        <a href="{{SPLUNKWEB_URL_PREFIX}}/app/launcher/home" class="brand" title="splunk &gt; listen to your data">splunk<strong>&gt;</strong></a>
+    </div>
+    <div id="placeholder-app-bar"></div>
+</div>
+<div class="dashboard-body container-fluid main-section-body" data-role="main">
+    <div class="dashboard-header clearfix">
+        <h2>ma new image search</h2>
+    </div>
+    <div class="dashboard-row dashboard-row1">
+        <div class="dashboard-cell" style="width: 100%;">
+            <div class="dashboard-panel clearfix">
+                <div class="panel-element-row">
+                    <div class="dashboard-element event" id="element1" style="width: 100%">
+                        <div class="panel-body"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="footer"></div>
-        <script src="{{SPLUNKWEB_URL_PREFIX}}/config?autoload=1"></script>
-        <script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/i18n.js"></script>
-        <script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/build/simplexml.min/config.js"></script>
-        <script type="text/javascript">
-            require.config({
-                baseUrl: "{{SPLUNKWEB_URL_PREFIX}}/static/js",
-                waitSeconds: 0 // Disable require.js load timeout
-            });
-            require([
-                "splunkjs/mvc",
-                "splunkjs/mvc/utils",
-                "splunkjs/mvc/tokenutils",
-                "underscore",
-                "jquery",
-                "splunkjs/mvc/simplexml",
-            "splunk.config"],
-            function(mvc, utils, TokenUtils, _, $) {
+    </div>
+</div>
+<div class="footer"></div>
+
+<!--
+END LAYOUT
+-->
+
+<script src="{{SPLUNKWEB_URL_PREFIX}}/config?autoload=1"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/i18n.js"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/build/simplexml.min/config.js"></script>
+<script type="text/javascript">
+require.config({
+    baseUrl: "{{SPLUNKWEB_URL_PREFIX}}/static/js",
+    waitSeconds: 0 // Disable require.js load timeout
+});
+
+//
+// LIBRARY REQUIREMENTS
+//
+// In the require function, we include the necessary libraries and modules for
+// the HTML dashboard. Then, we pass variable names for these libraries and
+// modules as function parameters, in order.
+//
+// When you add libraries or modules, remember to retain this mapping order
+// between the library or module and its function parameter. You can do this by
+// adding to the end of these lists, as shown in the commented examples below.
+
+require([
+    "splunkjs/mvc",
+    "splunkjs/mvc/utils",
+    "splunkjs/mvc/tokenutils",
+    "underscore",
+    "jquery",
+    "splunkjs/mvc/simplexml",
+    "splunkjs/mvc/headerview",
+    "splunkjs/mvc/footerview",
+    "splunkjs/mvc/simplexml/dashboard",
+    "splunkjs/mvc/simplexml/element/chart",
+    "splunkjs/mvc/simplexml/element/event",
+    "splunkjs/mvc/simplexml/element/html",
+    "splunkjs/mvc/simplexml/element/list",
+    "splunkjs/mvc/simplexml/element/map",
+    "splunkjs/mvc/simplexml/element/single",
+    "splunkjs/mvc/simplexml/element/table",
+    "splunkjs/mvc/simpleform/input/dropdown",
+    "splunkjs/mvc/simpleform/input/radiogroup",
+    "splunkjs/mvc/simpleform/input/text",
+    "splunkjs/mvc/simpleform/input/timerange",
+    "splunkjs/mvc/simpleform/input/submit",
+    "splunkjs/mvc/searchmanager",
+    "splunkjs/mvc/savedsearchmanager",
+    "splunkjs/mvc/postprocessmanager",
+    "splunkjs/mvc/simplexml/urltokenmodel"
+    // Add comma-separated libraries and modules manually here, for example:
+    // ..."splunkjs/mvc/simplexml/urltokenmodel",
+    // "splunkjs/mvc/checkboxview"
+    ],
+    function(
+        mvc,
+        utils,
+        TokenUtils,
+        _,
+        $,
+        DashboardController,
+        HeaderView,
+        FooterView,
+        Dashboard,
+        ChartElement,
+        EventElement,
+        HtmlElement,
+        ListElement,
+        MapElement,
+        SingleElement,
+        TableElement,
+        DropdownInput,
+        RadioGroupInput,
+        TextInput,
+        TimeRangeInput,
+        SubmitButton,
+        SearchManager,
+        SavedSearchManager,
+        PostProcessManager,
+        UrlTokenModel
+
+        // Add comma-separated parameter names here, for example:
+        // ...UrlTokenModel,
+        // CheckboxView
+        ) {
+
+
 
                 // AUTO-COMPILED JAVASCRIPT
 
@@ -69,7 +149,6 @@
                 var TableElement = require("splunkjs/mvc/simplexml/element/table");
                 var SearchManager = require("splunkjs/mvc/searchmanager");
                 var SavedSearchManager = require("splunkjs/mvc/savedsearchmanager");
-                var PostProcessSearchContext = require("splunkjs/mvc/postprocess");
                 var UrlTokenModel = require("splunkjs/mvc/simplexml/urltokenmodel");
                 var SimpleSplunkView = require("splunkjs/mvc/simplesplunkview");
 
@@ -363,15 +442,15 @@
                         style: "position: relative; width: 400px; height: 400px; float: left; display: none;"
                     });
                     $(viz.$el.selector).append(theDiv);
-                    var matchSplit = data[i][2].split(".");
+                    var matchSplit = data[i].relevance.split(".");
                     var match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
                     $.ajax({
                         url: "http://localhost:5123/image",
                         cache: false,
                         type: "GET",
                         data: {
-                            path: data[i][1],
-                            filename: data[i][0]
+                            path: data[i].source,
+                            filename: data[i].image
                         },
                         success: function(image) {
                             createImageDiv(image, match, theDiv);
