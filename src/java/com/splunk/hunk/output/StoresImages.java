@@ -22,20 +22,23 @@ public class StoresImages {
 	public final Class<BytesWritable> valueClass = BytesWritable.class;
 	private Path inputDir;
 	private Path outputSeqFile;
-	private FileSystem fs;
+	private FileSystem inFs;
+	private FileSystem outFs;
 
-	public StoresImages(FileSystem fs, Path inputDir, Path outputSeqFile) {
-		this.fs = fs;
+	public StoresImages(FileSystem inFs, Path inputDir, FileSystem outFs,
+			Path outputSeqFile) {
+		this.inFs = inFs;
 		this.inputDir = inputDir;
+		this.outFs = outFs;
 		this.outputSeqFile = outputSeqFile;
 	}
 
-	public Path createSequenceFile() throws IOException {
+	public Path storeImages() throws IOException {
 		Writer writer = null;
 		try {
 			writer = createWriter();
 			writer.setIndexInterval(2);
-			writeFiles(writer, fs.listStatus(inputDir));
+			writeFiles(writer, inFs.listStatus(inputDir));
 		} finally {
 			IOUtils.closeQuietly(writer);
 		}
@@ -43,7 +46,7 @@ public class StoresImages {
 	}
 
 	private Writer createWriter() throws IOException {
-		return new MapFile.Writer(fs.getConf(), fs, outputSeqFile.toUri()
+		return new MapFile.Writer(outFs.getConf(), outFs, outputSeqFile.toUri()
 				.getPath(), keyClass, valueClass, CompressionType.NONE);
 	}
 
@@ -53,7 +56,7 @@ public class StoresImages {
 			if (!f.isDir())
 				appendFileContent(writer, f);
 			else
-				writeFiles(writer, fs.listStatus(f.getPath()));
+				writeFiles(writer, inFs.listStatus(f.getPath()));
 	}
 
 	private void appendFileContent(Writer writer, FileStatus f)
@@ -69,7 +72,7 @@ public class StoresImages {
 		FSDataInputStream open = null;
 		try {
 			fileBytes = new ByteArrayOutputStream();
-			open = fs.open(p);
+			open = inFs.open(p);
 			IOUtils.copyLarge(open, fileBytes);
 		} finally {
 			IOUtils.closeQuietly(open);
@@ -78,10 +81,10 @@ public class StoresImages {
 		return fileBytes;
 	}
 
-	public static StoresImages create(String uri, String dir, String output)
-			throws IOException {
-		return new StoresImages(FileSystem.get(URI.create(uri),
-				new Configuration()), new Path(dir), new Path(output));
+	public static StoresImages create(String dirFsUri, String dir,
+			String outFsUri, String output) throws IOException {
+		return new StoresImages(FileSystem.get(URI.create(dirFsUri),
+				new Configuration()), new Path(dir), FileSystem.get(
+				URI.create(outFsUri), new Configuration()), new Path(output));
 	}
-
 }
