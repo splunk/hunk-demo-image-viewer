@@ -2,7 +2,10 @@ package com.splunk.hunk.output;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -38,7 +41,10 @@ public class StoresImages {
 		try {
 			writer = createWriter();
 			writer.setIndexInterval(2);
-			writeFiles(writer, inFs.listStatus(inputDir));
+			TreeMap<String, Path> paths = getSortedPaths(writer,
+					inFs.listStatus(inputDir));
+			for (Entry<String, Path> entry : paths.entrySet())
+				appendFileContent(writer, entry.getValue());
 		} finally {
 			IOUtils.closeQuietly(writer);
 		}
@@ -50,21 +56,27 @@ public class StoresImages {
 				.getPath(), keyClass, valueClass, CompressionType.NONE);
 	}
 
-	private void writeFiles(Writer writer, FileStatus[] listStatus)
-			throws IOException {
+	private TreeMap<String, Path> getSortedPaths(Writer writer,
+			FileStatus[] listStatus) throws IOException {
+		TreeMap<String, Path> paths = new TreeMap<String, Path>();
 		for (FileStatus f : listStatus)
 			if (!f.isDir())
-				appendFileContent(writer, f);
+				paths.put(getKeyFromPath(f.getPath()), f.getPath());
 			else
-				writeFiles(writer, inFs.listStatus(f.getPath()));
+				paths.putAll(getSortedPaths(writer,
+						inFs.listStatus(f.getPath())));
+		return paths;
 	}
 
-	private void appendFileContent(Writer writer, FileStatus f)
-			throws IOException {
-		Path p = f.getPath();
-		ByteArrayOutputStream fileBytes = readFilesBytes(p);
-		writer.append(new Text(p.toUri().getPath()), new BytesWritable(
+	private void appendFileContent(Writer writer, Path path) throws IOException {
+		ByteArrayOutputStream fileBytes = readFilesBytes(path);
+		writer.append(new Text(getKeyFromPath(path)), new BytesWritable(
 				fileBytes.toByteArray()));
+	}
+
+	public static String getKeyFromPath(Path p)
+			throws UnsupportedEncodingException {
+		return p.toString().toLowerCase().replaceAll(" ", "");
 	}
 
 	private ByteArrayOutputStream readFilesBytes(Path p) throws IOException {
