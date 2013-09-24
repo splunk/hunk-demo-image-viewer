@@ -18,7 +18,11 @@ You will need [Leiningen][1] 1.7.0 or above installed.
 
 To start a web server for the application, run:
 
-    lein ring server
+    lein run -m images.core <hdfs-uri>
+
+Or create a jar with `lein uberjar` and run:
+
+    java -classpath images-0.1.0-SNAPSHOT-standalone.jar images.main <hdfs-uri>
 
 ## License
 
