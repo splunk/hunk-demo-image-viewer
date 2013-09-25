@@ -422,21 +422,23 @@ require([
                     className: "my-splunk-view",
                     outputMode: "json",
                     n_images: 3,
-                    offset: 0,
+                    height: 400,
+                    visible: false,
 
                     createView: function() {
                         console.log("In createView:");
                         $(".splunk-message-container").remove();
-                        $(this.$el.selector).css({
-                            width: "1200px",
-                            height: "400px"
-                        });
+                        this.setSize();
                         for (var i = 0; i < this.n_images; i++) {
-                            jQuery("<div/>", {
-                                style: "position: relative; width: 400px; height: 400px; float: left;"
-                            }).appendTo(this.$el.selector);
+                            this.createImageContainer();
                         }
                         return this;
+                    },
+
+                    createImageContainer: function() {
+                        jQuery("<div/>", {
+                            style: "position: relative; width: 400px; height: 400px; float: left;"
+                        }).appendTo(this.$el.selector);
                     },
 
                     formatData: function(data) {
@@ -444,12 +446,34 @@ require([
                     },
 
                     updateView: function(viz, data) {
+                        this.visible = true;
+                        this.setSize();
                         if (this._isJobDone)
                             console.log("Job is done!");
                         console.log("In updateView:");
                         console.log(data);
                         for (var i = 0; i < this.n_images; i++) {
-                            fetchImage(this.offset + i,  data, viz);
+                            fetchImage(i,  data, viz);
+                        }
+                    },
+
+                    setSize: function() {
+                        $(this.$el.selector).css({
+                            width: "1200px",
+                            height: this.height + "px"
+                        });
+                    },
+
+                    grow: function() {
+                        if(this.visible && this._data.length > this.n_images) {
+                            console.log("Actually growing: " + this.n_images);
+                            this.height += 400;
+                            var increment = Math.min(3, this._data.length - this.n_images);
+                            this.n_images += increment;
+                            for (var i = 0; i < increment; i++) {
+                                this.createImageContainer();
+                            }
+                            this.render();
                         }
                     }
                 });
@@ -506,9 +530,15 @@ require([
                 function isAtTheBottom() {
                     return $(window).scrollTop() == $(document).height() - $(window).height();
                 }
-            }
-            );
 
+                $(window).scroll(function() {
+                    console.log("scrolling..");
+                    if(isAtTheBottom() && element != null) {
+                        console.log("Growing!");
+                        element.grow();
+                    }
+                });
+            });
         </script>
     </body>
 </html>
