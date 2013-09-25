@@ -185,17 +185,20 @@ require([
 
                 function createSearch(id) {
                     var search = "index=images";
+                    var rename = "";
                     var sumString = "score=";
                     $(".bucket").each(function(i) {
                         var self = $(this);
                         if (self.attr("checked")) {
-                            search += " | rename ";
+                            var colorId = "colors." + getKey(self, "b") + "." + getKey(self,"s") + "." + getKey(self, "h");
+                            rename += " | rename ";
                             var color = "color" + i;
-                            search += "colors." + getKey(self, "b") + "." + getKey(self,"s") + "." + getKey(self, "h") + " as " + color + ", ";
-                            sumString += color + "+";
+                            rename +=  colorId + " as " + color + ", ";
+                            sumString += "(1 + " +  color + ")*";
                         }
                     });
-                    sumString += "0";
+                    sumString += "1";
+                    search += rename;
                     search += " | eval " + sumString + " | stats sum(score) as relevance by image, source";
                     search += " | sort -relevance"
                     console.log("da search: " + search);
@@ -444,7 +447,12 @@ require([
 
                 function fetchImage(i, data, viz) {
                     var matchSplit = data[i].relevance.split(".");
-                    var match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
+                    var match  = "";
+                    if (matchSplit.length == 1) {
+                        match = matchSplit[0];
+                    } else {
+                        match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
+                    }
                     $.ajax({
                         url: "http://localhost:5123/image",
                         cache: false,
@@ -480,7 +488,7 @@ require([
                     h2style += " background: rgba(0, 0, 0, 0.7); padding: 10px;";
                     jQuery("<h2/>", {
                         style: h2style,
-                        text: "Match: " + match + "%"
+                        text: "FairScore: " + match + ""
                     }).appendTo(theDiv);
                 }
             }
