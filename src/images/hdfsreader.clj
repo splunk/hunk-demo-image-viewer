@@ -11,7 +11,11 @@
       (throw (Exception. (str "No entry reader for path: " path))))))
 
 (defn get-image [hdfspath filename]
-  (.getHdfsFileStream (get-entry-reader hdfspath)
+  (try
+    (.getHdfsFileStream (get-entry-reader hdfspath)
                       @hdfs-uri
                       hdfspath
-                      filename))
+                      filename)
+    (catch Exception e
+      (-> (clojure.java.io/resource "public/imsorry.jpg")
+          .openStream))))
