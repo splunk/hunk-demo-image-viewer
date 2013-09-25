@@ -187,9 +187,11 @@ require([
                     var search = "index=images";
                     var rename = "";
                     var sumString = "score=";
+                    var checkedBuckets = 0;
                     $(".bucket").each(function(i) {
                         var self = $(this);
                         if (self.attr("checked")) {
+                            checkedBuckets += 1;
                             var colorId = "colors." + getKey(self, "b") + "." + getKey(self,"s") + "." + getKey(self, "h");
                             rename += " | rename ";
                             var color = "color" + i;
@@ -198,8 +200,14 @@ require([
                         }
                     });
                     sumString += "1";
+
+                    var n = checkedBuckets;
+                    var scorePctEval = "score_pct=100*(log(score," + n + "))/log(pow((floor(100/" + n + "))+1," + n + ")," + n + ")";
+
                     search += rename;
-                    search += " | eval " + sumString + " | stats sum(score) as relevance by image, source";
+                    search += " | eval " + sumString;
+                    search += " | eval " + scorePctEval;
+                    search += " | stats sum(score_pct) as relevance by image, source";
                     search += " | sort -relevance"
                     console.log("da search: " + search);
                     return new SearchManager({
@@ -413,14 +421,15 @@ require([
                 var MySplunkView = SimpleSplunkView.extend({
                     className: "my-splunk-view",
                     outputMode: "json",
-                    n_images: 6,
+                    n_images: 3,
+                    offset: 0,
 
                     createView: function() {
                         console.log("In createView:");
                         $(".splunk-message-container").remove();
                         $(this.$el.selector).css({
                             width: "1200px",
-                            height: "800px"
+                            height: "400px"
                         });
                         for (var i = 0; i < this.n_images; i++) {
                             jQuery("<div/>", {
@@ -440,7 +449,7 @@ require([
                         console.log("In updateView:");
                         console.log(data);
                         for (var i = 0; i < this.n_images; i++) {
-                            fetchImage(i,  data, viz);
+                            fetchImage(this.offset + i,  data, viz);
                         }
                     }
                 });
@@ -488,11 +497,18 @@ require([
                     h2style += " background: rgba(0, 0, 0, 0.7); padding: 10px;";
                     jQuery("<h2/>", {
                         style: h2style,
-                        text: "FairScore: " + match + ""
+                        text: "Relevance: " + match + ""
                     }).appendTo(theDiv);
+                }
+
+                // Scrolling stuff
+
+                function isAtTheBottom() {
+                    return $(window).scrollTop() == $(document).height() - $(window).height();
                 }
             }
             );
+
         </script>
     </body>
 </html>
