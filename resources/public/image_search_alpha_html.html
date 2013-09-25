@@ -479,6 +479,13 @@ require([
                 });
 
                 function fetchImage(i, data, viz) {
+                    var imageKey = data[i].source + data[i].image;
+                    var itsDiv = $('.my-splunk-view').children()[i];
+                    if ($(itsDiv).attr("imageKey") === imageKey) {
+                        return;
+                    } else {
+                        $(itsDiv).attr("imageKey", imageKey);
+                    }
                     var matchSplit = data[i].relevance.split(".");
                     var match  = "";
                     if (matchSplit.length == 1) {
@@ -495,7 +502,6 @@ require([
                             filename: data[i].image
                         },
                         success: function(image) {
-                            var itsDiv = $('.my-splunk-view').children()[i];
                             createImageDiv(image, match, itsDiv);
                         },
                         error: function(x) {
