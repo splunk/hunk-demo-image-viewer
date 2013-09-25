@@ -3,6 +3,7 @@
   (:require [compojure.handler :as handler]
             [compojure.route :as route]
             [images.hdfsreader :as reader]
+            [images.image :as image]
             [clojure.string :as s]
             [ring.middleware.cors :as cors])
   (:import [org.apache.commons.codec.binary Base64]
@@ -19,7 +20,7 @@
                   "Access-Control-Allow-Headers" "x-splunk-form-key, accept, origin"
                   "Access-Control-Allow-Methods" "GET"}
         :body (-> (reader/get-image path filename)
-                  IOUtils/toByteArray
+                  image/image-stream->byte-array
                   Base64/encodeBase64
                   String.)})
   (route/resources "/")
