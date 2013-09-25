@@ -410,14 +410,20 @@ require([
                 var MySplunkView = SimpleSplunkView.extend({
                     className: "my-splunk-view",
                     outputMode: "json",
+                    n_images: 6,
 
                     createView: function() {
                         console.log("In createView:");
                         $(".splunk-message-container").remove();
                         $(this.$el.selector).css({
                             width: "1200px",
-                            height: "400px"
+                            height: "800px"
                         });
+                        for (var i = 0; i < this.n_images; i++) {
+                            jQuery("<div/>", {
+                                style: "position: relative; width: 400px; height: 400px; float: left;"
+                            }).appendTo(this.$el.selector);
+                        }
                         return this;
                     },
 
@@ -429,19 +435,14 @@ require([
                         if (this._isJobDone)
                             console.log("Job is done!");
                         console.log("In updateView:");
-                        $(viz.$el.selector).empty();
                         console.log(data);
-                        for (var i = 0; i < 3; i++) {
+                        for (var i = 0; i < this.n_images; i++) {
                             fetchImage(i,  data, viz);
                         }
                     }
                 });
 
                 function fetchImage(i, data, viz) {
-                    var theDiv = jQuery("<div/>", {
-                        style: "position: relative; width: 400px; height: 400px; float: left; display: none;"
-                    });
-                    $(viz.$el.selector).append(theDiv);
                     var matchSplit = data[i].relevance.split(".");
                     var match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
                     $.ajax({
@@ -453,14 +454,17 @@ require([
                             filename: data[i].image
                         },
                         success: function(image) {
-                            createImageDiv(image, match, theDiv);
+                            var itsDiv = $('.my-splunk-view').children()[i];
+                            createImageDiv(image, match, itsDiv);
                         },
                         error: function(x) {
                             alert("Error: " + x);
                         }});
                 }
 
-                function createImageDiv(image, match, theDiv) {
+                function createImageDiv(image, match, div) {
+                    var theDiv = $(div);
+                    theDiv.empty();
                     var img = jQuery("<img/>", {
                         width: "400",
                         height: "400",
@@ -469,7 +473,6 @@ require([
                     });
                     img.appendTo(theDiv);
                     img.load(function() {
-                        theDiv.fadeIn(1300);
                     });
                     var h2style = "position: absolute; top: 280px; left: 0; width: 380px;";
                     h2style += " color: white; font: bold 24px/45px Helvetica, Sans-Serif;";
