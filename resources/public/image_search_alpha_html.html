@@ -466,7 +466,6 @@ require([
 
                     grow: function() {
                         if(this.visible && this._data.length > this.n_images) {
-                            console.log("Actually growing: " + this.n_images);
                             this.height += 400;
                             var increment = Math.min(3, this._data.length - this.n_images);
                             this.n_images += increment;
@@ -538,9 +537,7 @@ require([
                 }
 
                 $(window).scroll(function() {
-                    console.log("scrolling..");
                     if(isAtTheBottom() && element != null) {
-                        console.log("Growing!");
                         element.grow();
                     }
                 });
