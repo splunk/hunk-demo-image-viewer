@@ -19,8 +19,13 @@
         :headers {"Content-Type" (str "image/" (content-subtype filename))
                   "Access-Control-Allow-Headers" "x-splunk-form-key, accept, origin"
                   "Access-Control-Allow-Methods" "GET"}
-        :body (-> (reader/get-image path filename)
-                  image/image-stream->byte-array
+        :body (-> (try
+                    (-> (reader/get-image path filename)
+                        image/image-stream->byte-array)
+                    (catch Exception e
+                      (-> (clojure.java.io/resource "public/imsorry.jpg")
+                          .openStream
+                          IOUtils/toByteArray)))
                   Base64/encodeBase64
                   String.)})
   (route/resources "/")
