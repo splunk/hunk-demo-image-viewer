@@ -501,7 +501,9 @@ require([
                             filename: data[i].image
                         },
                         success: function(image) {
-                            createImageDiv(image, match, itsDiv);
+                            if ($(itsDiv).attr("imageKey") === imageKey) {
+                                createImageDiv(image, match, itsDiv);
+                            }
                         },
                         error: function(x) {
                             alert("Error: " + x);
