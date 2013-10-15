@@ -202,7 +202,7 @@ require([
                     sumString += "1";
 
                     var n = checkedBuckets;
-                    var scorePctEval = "score_pct=100*(log(score," + n + "))/log(pow((floor(100/" + n + "))+1," + n + ")," + n + ")";
+                    var scorePctEval = "score_pct=if(" + n + "<2, score, 100*(log(score," + n + "))/log(pow((floor(100/" + n + "))+1," + n + ")," + n + "))";
 
                     search += rename;
                     search += " | eval " + sumString;
