@@ -424,6 +424,7 @@ require([
                     n_images: 6,
                     height: 800,
                     visible: false,
+                    cache: {},
 
                     createView: function() {
                         console.log("In createView:");
@@ -452,8 +453,15 @@ require([
                             console.log("Job is done!");
                         console.log("In updateView:");
                         console.log(data);
+                        var currentImages = {};
                         for (var i = 0; i < this.n_images && i < data.length; i++) {
-                            fetchImage(i,  data, viz);
+                            fetchImage(i,  data, viz, this.cache);
+                            currentImages[getImageKey(data, i)] = true;
+                        }
+                        for (var key in this.cache) {
+                            if (!(key in currentImages)) {
+                                delete this.cache[key];
+                            }
                         }
                     },
 
@@ -477,8 +485,12 @@ require([
                     }
                 });
 
-                function fetchImage(i, data, viz) {
-                    var imageKey = data[i].source + data[i].image;
+                function getImageKey(data, i) {
+                    return data[i].source + data[i].image;
+                }
+
+                function fetchImage(i, data, viz, cache) {
+                    var imageKey = getImageKey(data, i);
                     var itsDiv = $('.my-splunk-view').children()[i];
                     if ($(itsDiv).attr("imageKey") === imageKey) {
                         return;
@@ -492,22 +504,27 @@ require([
                     } else {
                         match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
                     }
-                    $.ajax({
-                        url: "http://localhost:5123/image",
-                        cache: false,
-                        type: "GET",
-                        data: {
-                            path: data[i].source,
-                            filename: data[i].image
-                        },
-                        success: function(image) {
-                            if ($(itsDiv).attr("imageKey") === imageKey) {
-                                createImageDiv(image, match, itsDiv);
-                            }
-                        },
-                        error: function(x) {
-                            alert("Error: " + x);
-                        }});
+                    if (imageKey in cache) {
+                        createImageDiv(cache[imageKey], match, itsDiv);
+                    } else {
+                        $.ajax({
+                            url: "http://localhost:5123/image",
+                            cache: false,
+                            type: "GET",
+                            data: {
+                                path: data[i].source,
+                                filename: data[i].image
+                            },
+                            success: function(image) {
+                                if ($(itsDiv).attr("imageKey") === imageKey) {
+                                    cache[imageKey] = image;
+                                    createImageDiv(image, match, itsDiv);
+                                }
+                            },
+                            error: function(x) {
+                                alert("Error: " + x);
+                            }});
+                    }
                 }
 
                 function createImageDiv(image, match, div) {
