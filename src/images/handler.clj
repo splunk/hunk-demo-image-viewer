@@ -23,6 +23,7 @@
                     (-> (reader/get-image path filename)
                         image/image-stream->byte-array)
                     (catch Exception e
+                      (.printStackTrace e)
                       (-> (clojure.java.io/resource "public/imsorry.jpg")
                           .openStream
                           IOUtils/toByteArray)))
