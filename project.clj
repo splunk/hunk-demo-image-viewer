@@ -15,4 +15,5 @@
   :profiles
   {:dev {:dependencies [[ring-mock "0.1.5"]]}}
   :java-source-paths ["src/java"]
-  :main images.main)
+  :main images.main
+  :jvm-opts  ["-Xmx2048M"])
