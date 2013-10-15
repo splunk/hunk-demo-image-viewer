@@ -452,7 +452,7 @@ require([
                             console.log("Job is done!");
                         console.log("In updateView:");
                         console.log(data);
-                        for (var i = 0; i < this.n_images; i++) {
+                        for (var i = 0; i < this.n_images && i < data.length; i++) {
                             fetchImage(i,  data, viz);
                         }
                     },
