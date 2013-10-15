@@ -185,17 +185,17 @@ require([
 
                 function createSearch(id) {
                     var search = "index=images AND colors";
-                    var rename = "";
+                    var spath = "";
                     var sumString = "score=";
                     var checkedBuckets = 0;
                     $(".bucket").each(function(i) {
                         var self = $(this);
                         if (self.attr("checked")) {
                             checkedBuckets += 1;
-                            var colorId = "colors." + getKey(self, "b") + "." + getKey(self,"s") + "." + getKey(self, "h");
-                            rename += " | rename ";
+                            var colorId = "colors{" + getKey(self, "b") + "}{" + getKey(self,"s") + "}{" + getKey(self, "h") + "}";
+                            spath += " | spath ";
                             var color = "color" + i;
-                            rename +=  colorId + " as " + color + ", ";
+                            spath +=  "path=" + colorId + " output=" + color;
                             sumString += "(1 + " +  color + ")*";
                         }
                     });
@@ -204,7 +204,7 @@ require([
                     var n = checkedBuckets;
                     var scorePctEval = "score_pct=if(" + n + "<2, score, 100*(log(score," + n + "))/log(pow((floor(100/" + n + "))+1," + n + ")," + n + "))";
 
-                    search += rename;
+                    search += spath;
                     search += " | eval " + sumString;
                     search += " | eval " + scorePctEval;
                     search += " | stats sum(score_pct) as relevance by image, source";
