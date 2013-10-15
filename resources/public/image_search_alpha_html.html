@@ -324,7 +324,7 @@ require([
                 var sBuckets = 3;
                 var bBuckets = 2;
 
-                var checkBoxesDiv = jQuery("<div/>", {
+                var checkBoxesDiv = $("<div/>", {
                     class: 'row span11',
                     id: 'checkBoxes'
                 });
@@ -340,11 +340,11 @@ require([
                             var sat = (1/(1.1*sBuckets)) + (j == 0? 0 : (1/sBuckets)*j);
                             var bri = (1/(1.1*bBuckets)) + (i == 0? 0 : (1/bBuckets)*i);
                             var rgb = hsv2rgb(hue, sat, bri);
-                            var checkBoxWrap = jQuery("<div/>", {
+                            var checkBoxWrap = $("<div/>", {
                                 class: "span1",
                                 style: "background-color: rgb(" + rgb['red'] + "," + rgb['green'] + "," + rgb['blue'] + ")"
                             });
-                            var checkBox = jQuery("<input/>", {
+                            var checkBox = $("<input/>", {
                                 type: "checkbox",
                                 class: "bucket",
                                 h: k,
@@ -363,7 +363,7 @@ require([
 
                 // search
 
-                var searchButton = jQuery("<button/>", {
+                var searchButton = $("<button/>", {
                     class: "btn btn-large btn-primary",
                     type: "button",
                     text: "Search!",
@@ -392,7 +392,7 @@ require([
                     search.startSearch();
                 });
 
-                var resetButton = jQuery("<button/>", {
+                var resetButton = $("<button/>", {
                     class: "btn btn-small btn-default",
                     type: "button",
                     text: "Reset selection",
@@ -406,12 +406,12 @@ require([
                 dashBody.append(resetButton);
 
                 function attachNewElement(id) {
-                    var elementDiv = jQuery("<div/>", {
+                    var elementDiv = $("<div/>", {
                         class: "dashboard-element chart",
                         id: "element" + id,
                         style: "width: 100%"
                     });
-                    jQuery("<div/>", {
+                    $("<div/>", {
                         class: "panel-body"
                     }).appendTo(elementDiv);
                     $(".panel-element-row").append(elementDiv);
@@ -437,7 +437,7 @@ require([
                     },
 
                     createImageContainer: function() {
-                        jQuery("<div/>", {
+                        $("<div/>", {
                             style: "position: relative; width: 400px; height: 400px; float: left;"
                         }).appendTo(this.$el.selector);
                     },
@@ -530,7 +530,7 @@ require([
                 function createImageDiv(image, match, div) {
                     var theDiv = $(div);
                     theDiv.empty();
-                    var img = jQuery("<img/>", {
+                    var img = $("<img/>", {
                         width: "400",
                         height: "400",
                         style: "float: left; width: 400px; height: 400px;",
@@ -543,7 +543,7 @@ require([
                     h2style += " color: white; font: bold 24px/45px Helvetica, Sans-Serif;";
                     h2style += " letter-spacing: -1px; background: rgb(0, 0, 0);";
                     h2style += " background: rgba(0, 0, 0, 0.7); padding: 10px;";
-                    jQuery("<h2/>", {
+                    $("<h2/>", {
                         style: h2style,
                         text: "Relevance: " + match + ""
                     }).appendTo(theDiv);
