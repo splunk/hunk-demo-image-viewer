@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Splunk Inc.
+// Copyright (C) 2013 Splunk Inc.
 //
 // Splunk Inc. licenses this file
 // to you under the Apache License, Version 2.0 (the
@@ -12,6 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.splunk.hunk.input.entry;
 
 import java.io.IOException;

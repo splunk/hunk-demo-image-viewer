@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Splunk Inc.
+// Copyright (C) 2013 Splunk Inc.
 //
 // Splunk Inc. licenses this file
 // to you under the Apache License, Version 2.0 (the
