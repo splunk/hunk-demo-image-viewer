@@ -505,7 +505,7 @@ require([
                         match = matchSplit[0] + "." + matchSplit[1].substring(0, 1);
                     }
                     if (imageKey in cache) {
-                        createImageDiv(cache[imageKey], match, itsDiv);
+                        populateImageDiv(cache[imageKey], match, itsDiv);
                     } else {
                         $.ajax({
                             url: "http://localhost:5123/image",
@@ -518,7 +518,7 @@ require([
                             success: function(image) {
                                 if ($(itsDiv).attr("imageKey") === imageKey) {
                                     cache[imageKey] = image;
-                                    createImageDiv(image, match, itsDiv);
+                                    populateImageDiv(image, match, itsDiv);
                                 }
                             },
                             error: function(x) {
@@ -527,7 +527,7 @@ require([
                     }
                 }
 
-                function createImageDiv(image, match, div) {
+                function populateImageDiv(image, match, div) {
                     var theDiv = $(div);
                     theDiv.empty();
                     var img = $("<img/>", {
